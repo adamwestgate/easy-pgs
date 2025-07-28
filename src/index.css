@@ -1,0 +1,55 @@
+/* index.css */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+#root {
+  /* center React tree */
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.App-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.App-message,
+.App-error {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.App-error {
+  color: #e53e3e;
+}
+
+.App-results {
+  width: 100%;
+  margin-top: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.bg-whole-site {
+  background: linear-gradient(
+    135deg,
+    #dbeafe 0%,     /* Tailwind blue-100 */
+    #ffffff 60%,    /* white at the center */
+    #ede9fe 100%    /* Tailwind purple-100 */
+  );
+}
+
+.shadow-modal {
+  /* Double drop-shadow: soft, neutral and blue-gray for better contrast */
+  box-shadow:
+    0 8px 40px 0 rgba(70, 85, 130, 0.14),   /* main blue-gray shadow */
+    0 1.5px 8px 0 rgba(44, 62, 80, 0.09);   /* accent, cooler shadow */
+}
+

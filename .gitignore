@@ -1,0 +1,42 @@
+# Node / React
+node_modules/
+build/
+dist/
+*.log
+
+# React config cache
+.cache/
+*.env
+
+# Tailwind / PostCSS temp files
+*.css.map
+
+# TypeScript
+*.tsbuildinfo
+
+# Go
+*.exe
+*.test
+*.out
+*.mod
+*.sum
+vendor/
+
+# Uploads and user data
+uploads/
+
+# Reference and scoring data (do not track large datasets)
+backend/data/reference_genomes/
+backend/data/pgs_files/
+
+# Kits db from boltdb
+backend/data/kits.db
+
+# Catalog from PGS Catalog
+backend/preprocessing/search_catalog/pgs_all_metadata.xlsx
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
