@@ -1,4 +1,4 @@
-// presents and delivers results (chip-aware: Ancestry vs 23andMe).
+// backend/server/handlers/results_handler.go
 package handlers
 
 import (
@@ -19,8 +19,6 @@ import (
     "github.com/adamwestgate/easy-pgs/backend/preprocessing/scoring"
 )
 
-/*──────────────────────── 1.  Data structures ───────────────────────────────*/
-
 type ScoringResults struct {
     User map[string]scoring.BatchResult `json:"user"`
     Pop  map[string]scoring.BatchResult `json:"pop"`
@@ -40,10 +38,10 @@ var (
     resultsByID = make(map[string]flatResults)
 )
 
-/*──────────────────────── 2.  .sscore helpers ───────────────────────────────*/
-
 type stats struct{ mean, sd float64 }
 
+// parseSscoreStats reads a .sscore file at the given path and computes the mean and SD of per-variant averages.
+// It looks for columns SCORE1_AVG (preferred) or SCORE1_SUM/ALLELE_CT.
 func parseSscoreStats(path string) (stats, error) {
     f, err := os.Open(path)
     if err != nil {
@@ -113,8 +111,11 @@ func parseSscoreStats(path string) (stats, error) {
     return stats{mean, sd}, nil
 }
 
-/*──────────────────────── 3.  Batch scoring wrapper ─────────────────────────*/
-
+// ScoreKitWithPGS performs batch scoring of a kit against given PGS weight files.
+// 1. Lookup kit from kitStore
+// 2. Score user data & get list of snps scored
+// 3. Score population on list of snps scored in the user kit
+// Returns ScoringResults containing user and population BatchResult maps.
 func ScoreKitWithPGS(kitID string, norm []string) (*ScoringResults, error) {
     prefix, kitType, ok := kitStore.Lookup(kitID)
     if !ok {
@@ -186,8 +187,7 @@ func ScoreKitWithPGS(kitID string, norm []string) (*ScoringResults, error) {
     return &ScoringResults{User: user, Pop: pop}, nil
 }
 
-/*──────────────────────── 4.  Flatten & cache results ───────────────────────*/
-
+// storeResults flattens ScoringResults and caches them in memory under the given kitID.
 func storeResults(kitID string, r *ScoringResults) {
     // Determine chip panel
     _, kitType, ok := kitStore.Lookup(kitID)
@@ -202,7 +202,7 @@ func storeResults(kitID string, r *ScoringResults) {
         Z:             map[string]float64{},
         Pct:           map[string]float64{},
         Trait:         map[string]string{},
-        PctSnpsScored: map[string]float64{},
+        PctSnpsScored: map[string]float64{}, // "Coverage" on the results page
     }
 
     // a) population means & SDs
@@ -265,8 +265,8 @@ func fetchResults(kitID string) (flatResults, bool) {
     return r, ok
 }
 
-/*──────────────────────── 5.  HTTP /results handler ────────────────────────*/
-
+// ResultsHandler handles HTTP GET requests to /results?kitId=<id>.
+// It returns cached scoring results in JSON, or an error if not found or wrong method.
 func ResultsHandler(w http.ResponseWriter, r *http.Request) {
     if r.Method == http.MethodOptions {
         w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
@@ -290,8 +290,7 @@ func ResultsHandler(w http.ResponseWriter, r *http.Request) {
     http.Error(w, "results not ready", http.StatusNotFound)
 }
 
-/*──────────────────────── 6.  Helper functions ─────────────────────────────*/
-
+// canonicalID strips any suffix after the first "." in a PGS ID string.
 func canonicalID(raw string) string {
     if dot := strings.IndexByte(raw, '.'); dot >= 0 {
         return raw[:dot]
@@ -299,6 +298,7 @@ func canonicalID(raw string) string {
     return raw
 }
 
+// getTraitLabel looks up a PGS ID in loaded data to find its reported trait label.
 func getTraitLabel(pgsID string) string {
     idClean := canonicalID(pgsID)
     for _, m := range data.LoadedScores {
@@ -321,6 +321,7 @@ func getTraitLabel(pgsID string) string {
     return ""
 }
 
+// snpRetentionPercent calculates the percentage of SNPs in snpList versus lines in TSV (minus header). This is to get the Coverage stat for the results page.
 func snpRetentionPercent(snplistPath, tsvPath string) float64 {
     snpF, err := os.Open(snplistPath)
     if err != nil {

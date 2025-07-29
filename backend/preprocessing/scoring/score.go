@@ -1,3 +1,5 @@
+// Package scoring handles scoring functionality for kits. 
+// Performs end stage preprocessing steps for related files and scores them via plink2.
 package scoring
 
 import (
@@ -11,7 +13,6 @@ import (
 	"github.com/adamwestgate/easy-pgs/backend/config"
 )
 
-/*──────────────────────── 1.  Helper: pick the .afreq ───────────────────────*/
 func refFreqFor(kitType string) string {
 	switch strings.ToLower(kitType) {
 	case "ancestry":
@@ -24,13 +25,21 @@ func refFreqFor(kitType string) string {
 	}
 }
 
-/*──────────────────────── 2.  BatchResult struct ────────────────────────────*/
+// BatchResult holds the outcome of scoring a single PGS file:
+//  - ScorePath: path to the generated .sscore file (empty on error)
+//  - Err: any error encountered during scoring
 type BatchResult struct {
 	ScorePath string
 	Err       error
 }
 
-/*──────────────────────── 3.  BatchScore (chip-aware) ───────────────────────*/
+// BatchScore locates pgen/pvar/psam files for the associated kit, then 
+//  scores them for each PGS file requested by the user.
+// Returns a map from trimmed PGS ID to BatchResult.
+//  - pfileDir: directory containing .pgen/.pvar files for the kit
+//  - kitType: data source name ("ancestry" or "23andme")
+//  - scorePaths: list of PGS weight files to apply
+//  - pvarDir: optional directory to search for a .pvar file
 func BatchScore(pfileDir, kitType string, scorePaths []string, pvarDir string) map[string]BatchResult {
 	res := make(map[string]BatchResult, len(scorePaths))
 
@@ -57,7 +66,9 @@ func BatchScore(pfileDir, kitType string, scorePaths []string, pvarDir string) m
 	return res
 }
 
-/*──────────────────────── 4.  prepareScoreFile (RSID remap) ─────────────────*/
+// prepareScoreFile rewrites a raw PGS file to use RSIDs rather than chr:pos identifiers.
+// It scans a .pvar file to build a map and outputs a .rsid.score file with only the score-relevant RSIDs found in the user kit
+// Returns the path to the RSID-mapped score file, or the original if mapping is not needed.
 func prepareScoreFile(scorePath, kitPrefix, pvarDir string) (string, error) {
 	fmt.Printf("[prepareScoreFile] Mapping RSIDs for %s\n", scorePath)
 
@@ -128,7 +139,10 @@ func prepareScoreFile(scorePath, kitPrefix, pvarDir string) (string, error) {
 	return out, nil
 }
 
-/*──────────────────────── 5.  Score (runs plink2) ───────────────────────────*/
+// Score runs PLINK2 to compute PGS scores given a genotype prefix and score file.
+// 1. Prepares an RSID-based score file if needed
+// 2. Constructs arguments (pfile, allele frequencies, score, header, extract)
+// 3. Executes PLINK2 and returns the path to the .sscore output
 func Score(pfilePrefix, kitType, scorePath, pvarDir string) (string, error) {
 	// prepare file with RSIDs
 	scPath, err := prepareScoreFile(scorePath, pfilePrefix, pvarDir)
@@ -165,11 +179,13 @@ func Score(pfilePrefix, kitType, scorePath, pvarDir string) (string, error) {
 	return outPrefix + ".sscore", nil
 }
 
-/*──────────────────────── 6.  tiny helpers ──────────────────────────────────*/
+// trimID removes the file extension from a path and returns the base name.
 func trimID(path string) string {
 	return strings.TrimSuffix(filepath.Base(path), filepath.Ext(path))
 }
 
+// mustReadDir reads the directory and panics on error, returning all entries.
+// Used when failure is unrecoverable (kit files must exist).
 func mustReadDir(dir string) []os.DirEntry {
 	entries, err := os.ReadDir(dir)
 	if err != nil {

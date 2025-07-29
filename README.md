@@ -59,5 +59,3 @@
    npm install
    npm start
    ```
-
-7. Open your browser at [http://localhost:3000](http://localhost:3000)
