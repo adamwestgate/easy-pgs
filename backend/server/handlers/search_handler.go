@@ -1,3 +1,4 @@
+// backend/server/handlers/search_handler.go
 package handlers
 
 import (
@@ -17,7 +18,8 @@ type TraitResult struct {
     Metadata    []map[string]interface{} `json:"metadata"`
 }
 
-// SearchHandler returns ontology traits plus PGS metadata, omitting GRCh38 weights
+// SearchHandler returns ontology traits plus PGS metadata from the catalog json files.
+// Omits GRCh38 files for now as consumer dna kits use an older build format.
 func SearchHandler(w http.ResponseWriter, r *http.Request) {
     // CORS pre‑flight
     if r.Method == http.MethodOptions {

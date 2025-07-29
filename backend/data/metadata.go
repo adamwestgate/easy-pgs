@@ -4,13 +4,15 @@ import (
     "encoding/json"
     "fmt"
     "os"
+    "path/filepath"
+
+    "github.com/adamwestgate/easy-pgs/backend/config"
 )
 
-// Exported paths for metadata files
-const (
-    OntologyTraitsPath = "backend/data/ontology_traits.json"
-    ScoresMetadataPath  = "backend/data/scores_metadata.json"
-	PgsDownloadFolderPath = "backend/data/pgs_files"
+// Paths for metadata files
+var (
+  OntologyTraitsPath = filepath.Join(config.DataDir, config.OntologyTraitsFile)
+  ScoresMetadataPath = filepath.Join(config.DataDir, config.ScoresMetadataFile)
 )
 
 // OntologyTrait mirrors one entry in ontology_traits.json

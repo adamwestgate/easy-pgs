@@ -1,3 +1,5 @@
+// backend/store/boltstore.go
+// Package boltstore handles operations for interacting with the project's boltstore
 package boltstore
 
 import (
@@ -7,9 +9,8 @@ import (
     "go.etcd.io/bbolt"
 
     "github.com/adamwestgate/easy-pgs/backend/store"
+    "github.com/adamwestgate/easy-pgs/backend/config"
 )
-
-const bucket = "kits"
 
 // kitRecord bundles the on-disk metadata.
 type kitRecord struct {
@@ -22,12 +23,12 @@ type Store struct{ db *bbolt.DB }
 
 // Open opens (or creates) backend/data/kits.db and ensures the “kits” bucket.
 func Open(dir string) (store.KitStore, error) {
-    db, err := bbolt.Open(filepath.Join(dir, "kits.db"), 0o600, nil)
+    db, err := bbolt.Open(filepath.Join(dir, config.BoltDBName), 0o600, nil)
     if err != nil {
         return nil, err
     }
     if err := db.Update(func(tx *bbolt.Tx) error {
-        _, e := tx.CreateBucketIfNotExists([]byte(bucket))
+        _, e := tx.CreateBucketIfNotExists([]byte(config.BoltBucketName))
         return e
     }); err != nil {
         return nil, err
@@ -43,7 +44,7 @@ func (s *Store) Insert(id, processedPath, kitType string) error {
         return err
     }
     return s.db.Update(func(tx *bbolt.Tx) error {
-        return tx.Bucket([]byte(bucket)).Put([]byte(id), data)
+        return tx.Bucket([]byte(config.BoltBucketName)).Put([]byte(id), data)
     })
 }
 
@@ -51,7 +52,7 @@ func (s *Store) Insert(id, processedPath, kitType string) error {
 func (s *Store) Lookup(id string) (string, string, bool) {
     var data []byte
     _ = s.db.View(func(tx *bbolt.Tx) error {
-        data = tx.Bucket([]byte(bucket)).Get([]byte(id))
+        data = tx.Bucket([]byte(config.BoltBucketName)).Get([]byte(id))
         return nil
     })
     if data == nil {
@@ -67,6 +68,6 @@ func (s *Store) Lookup(id string) (string, string, bool) {
 // Delete removes the record for this kitID.
 func (s *Store) Delete(id string) error {
     return s.db.Update(func(tx *bbolt.Tx) error {
-        return tx.Bucket([]byte(bucket)).Delete([]byte(id))
+        return tx.Bucket([]byte(config.BoltBucketName)).Delete([]byte(id))
     })
 }

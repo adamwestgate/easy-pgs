@@ -8,7 +8,6 @@ import (
 )
 
 // serverStatus holds the current processing stage.
-// In a real setup you might update this from your download or processing goroutines.
 var (
     statusMu     sync.RWMutex
     currentStage = "downloading"

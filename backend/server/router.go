@@ -6,6 +6,7 @@ import (
 
     "github.com/gorilla/handlers" // CORS middleware
     "github.com/gorilla/mux"
+    "github.com/adamwestgate/easy-pgs/backend/config"
 
     apihandlers "github.com/adamwestgate/easy-pgs/backend/server/handlers"
 )
@@ -15,7 +16,7 @@ func NewRouter() http.Handler {
 
     // Allow GET for search/status and POST for downloads
     corsOpts := handlers.CORS(
-        handlers.AllowedOrigins([]string{"http://localhost:3000"}),
+        handlers.AllowedOrigins([]string{config.FrontendOrigin}),
         handlers.AllowedMethods([]string{"GET", "POST", "OPTIONS"}),
         handlers.AllowedHeaders([]string{"Content-Type"}),
         handlers.AllowCredentials(),

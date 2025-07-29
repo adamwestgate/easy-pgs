@@ -7,6 +7,12 @@ const (
     // HTTP server address
     ServerHost = "localhost"
     ServerPort = "8080"
+	
+    // DataDir is where kits.db and other local data live
+    DataDir = "backend/data"
+
+    // FrontendOrigin is the allowed origin for CORS
+    FrontendOrigin = "http://localhost:3000"
 
 	// Upload handler directories
 	UploadRawDir       = "uploads/user_kits/raw"
@@ -37,4 +43,12 @@ const (
 	// External tool binaries
 	Plink1Cmd = "plink1"
 	Plink2Cmd = "plink2"
+
+	// Catalog file names
+	OntologyTraitsFile = "ontology_traits.json"
+  	ScoresMetadataFile = "scores_metadata.json"
+
+	// Bolt DB
+	BoltDBName     = "kits.db"
+  	BoltBucketName = "kits"
 )

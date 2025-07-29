@@ -12,9 +12,6 @@ import (
     "github.com/adamwestgate/easy-pgs/backend/store/boltstore"
 )
 
-// dataDir is where kits.db and other local data files live.
-const dataDir = "backend/data"
-
 func main() {
     // 1) Load static metadata used by search endpoints
     if err := data.LoadMetadata(); err != nil {
@@ -22,7 +19,7 @@ func main() {
     }
 
     // 2) Initialise the kit‑mapping store (embedded BoltDB)
-    kitStore, err := boltstore.Open(dataDir)
+    kitStore, err := boltstore.Open(config.DataDir)
     if err != nil {
         log.Fatalf("could not open kit store: %v", err)
     }
