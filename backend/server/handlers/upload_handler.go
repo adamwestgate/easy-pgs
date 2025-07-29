@@ -1,7 +1,4 @@
 // backend/server/handlers/upload_handler.go
-// UploadKitHandler streams an uploaded DNA kit, normalises it to PLINK2 binary format via kit_convert,
-// persists the <kitKey → (processedDir, kitType)> mapping via the configured KitStore,
-// and returns JSON once the processed files are on disk.
 package handlers
 
 import (
@@ -37,7 +34,10 @@ func init() {
     }
 }
 
-// UploadKitHandler handles DNA kit uploads at "/api/upload".
+// UploadKitHandler handles POST /upload.
+// It processes a user-uploaded DNA kit, converts it to PLINK2 format using kit_convert,
+// and stores the resulting data via the configured KitStore.
+// The response includes a unique kit ID and kit type (e.g., Ancestry or 23andMe).
 func UploadKitHandler(w http.ResponseWriter, r *http.Request) {
     if kitStore == nil {
         http.Error(w, "server mis-config: kitStore not set", http.StatusInternalServerError)
@@ -63,7 +63,7 @@ func UploadKitHandler(w http.ResponseWriter, r *http.Request) {
     // 3. Save raw kit
     base := uniqueFilename(filepath.Base(header.Filename))
     rawPath := filepath.Join(config.UploadRawDir, base)
-    if err := copyToFile(rawPath, file); err != nil {
+    if err := saveFileToPath(rawPath, file); err != nil {
         http.Error(w, "Failed to save raw kit", http.StatusInternalServerError)
         return
     }
@@ -101,8 +101,6 @@ func UploadKitHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(map[string]string{
 		"kit_id":        kitKey,
-		"raw":           rawPath,
-		"processed_dir": processedDir,
 		"kit_type":      kitType,
 	})
 	log.Printf("⇠  upload complete, kit_id=%s\n", kitKey)
@@ -118,8 +116,8 @@ func uniqueFilename(orig string) string {
     return fmt.Sprintf("%d_%s_%s", time.Now().UnixNano(), hex.EncodeToString(b), orig)
 }
 
-// copyToFile writes src reader to dstPath.
-func copyToFile(dstPath string, src io.Reader) error {
+// saveFileToPath writes a file in src reader to a file at the specified path
+func saveFileToPath(dstPath string, src io.Reader) error {
     dst, err := os.Create(dstPath)
     if err != nil {
         return err
