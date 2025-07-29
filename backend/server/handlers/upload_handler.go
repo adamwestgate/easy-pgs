@@ -16,7 +16,7 @@ import (
 
     "github.com/google/uuid"
 
-    kit_convert "github.com/adamwestgate/easy-pgs/backend/preprocessing/kit_convert"
+    "github.com/adamwestgate/easy-pgs/backend/preprocessing/kit_convert"
     "github.com/adamwestgate/easy-pgs/backend/config"
 )
 

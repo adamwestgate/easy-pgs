@@ -1,4 +1,7 @@
-package kitconv
+// backend/preprocessing/kit_convert/kit_convert.go
+// Package kit_convert converts uploaded user genotype kits to PLINK2-compatible formats
+// (pgen, pvar, psam) for use in downstream polygenic risk scoring.
+package kit_convert
 
 import (
     "bufio"
@@ -11,8 +14,6 @@ import (
 
     "github.com/adamwestgate/easy-pgs/backend/config"
 )
-
-/*──────────────────────── helpers ───────────────────────*/
 
 func isValidGenotype(g string) bool {
     if len(g) != 2 {
@@ -42,8 +43,10 @@ func normalizeChrom(raw string) string {
     }
 }
 
-/*─────────────────────── converters ─────────────────────*/
-
+// ConvertAncestry reads an AncestryDNA kit from src, strips comments,
+// normalizes chromosome names to PLINK’s conventions, filters out invalid
+// alleles, and writes a 4-column PLINK input (rsid, chrom, pos, genotype)
+// to dst.
 func ConvertAncestry(src io.Reader, dst io.Writer) error {
     sc := bufio.NewScanner(src)
     for sc.Scan() {
@@ -65,6 +68,9 @@ func ConvertAncestry(src io.Reader, dst io.Writer) error {
     return sc.Err()
 }
 
+// Convert23andMe reads a 23andMe kit from src, skips header/comments,
+// normalizes chromosomes, filters invalid genotypes, and writes the
+// 4-column PLINK input to dst.
 func Convert23andMe(src io.Reader, dst io.Writer) error {
     sc := bufio.NewScanner(src)
     for sc.Scan() {
@@ -85,9 +91,7 @@ func Convert23andMe(src io.Reader, dst io.Writer) error {
     return sc.Err()
 }
 
-/*──────────────── ConvertFileToPgen (returns kitType) ───────────────*/
-
-// ConvertFileToPgen converts a raw consumer‑DNA file into PLINK2 pgen.
+// ConvertFileToPgen converts a raw consumer‑DNA file into PLINK2 pgen/pvar/psam.
 // It returns the detected kitType ("ancestry" or "23andme").
 func ConvertFileToPgen(rawPath, processedDir string) (string, error) {
     if err := os.MkdirAll(processedDir, 0755); err != nil {
@@ -178,7 +182,10 @@ func ConvertFileToPgen(rawPath, processedDir string) (string, error) {
     return kitType, nil
 }
 
-
+// patchBimWithRefAlleles patches null alleles (“0”) in the BIM file at bimPath
+// by looking up reference alleles from the consumer chip manifest at refPath.
+// Any variants that still end up invalid or homozygous are written to a separate
+// exclude list (bimPath_without_ext + "_exclude.txt").
 func patchBimWithRefAlleles(bimPath, refPath string) error {
 	refMap := make(map[string]string)
 
