@@ -17,7 +17,7 @@
 //
 // The caller handles decompression; `r` must already be plain text.
 
-package pgsconvert
+package pgs_convert
 
 import (
     "bufio"
@@ -31,7 +31,6 @@ import (
 // Options lets a caller override defaults.
 // WeightCol – override the column name that contains the weights.  If empty,
 //             the first recognised default wins.
-// ----------------------------------------------------------------------------
 
 type Options struct {
     WeightCol string

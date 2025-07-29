@@ -1,3 +1,4 @@
+// backend/server/handlers/download_handler.go
 package handlers
 
 import (
@@ -11,7 +12,7 @@ import (
 	"strings"
 
 	"github.com/adamwestgate/easy-pgs/backend/data"
-	pgs_convert "github.com/adamwestgate/easy-pgs/backend/preprocessing/pgs_convert"
+	"github.com/adamwestgate/easy-pgs/backend/preprocessing/pgs_convert"
 	"github.com/adamwestgate/easy-pgs/backend/preprocessing/scoring"
 	"github.com/adamwestgate/easy-pgs/backend/config"
 )
@@ -28,7 +29,8 @@ type DownloadResponse struct {
 	Pop  map[string]scoring.BatchResult `json:"pop"`
 }
 
-// DownloadHandler handles kit download and scoring.
+// DownloadHandler downloads and formats PGS files from pgs-catalog.org
+// When PGS files are downloaded it runs scoring on them via results_handler
 func DownloadHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("DownloadHandler: called")
 	SetStatus("downloading")
