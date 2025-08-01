@@ -35,8 +35,10 @@
    Get the [PLINK2-compatible 1000G pgen set](https://www.cog-genomics.org/plink2/resources#1kg_phase3) and unzip it into:
 
    ```
-   backend/data/reference_genomes/
+   setup/genome/
    ```
+
+   Make sure the pgen, pvar, psam and afreq files are alone in the genome folder.
 
 3. **Install dependencies**  
    - [PLINK 1.9](https://www.cog-genomics.org/plink/1.9/) — binary must be accessible as `plink1` in your system PATH  
