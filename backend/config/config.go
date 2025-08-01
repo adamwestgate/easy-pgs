@@ -22,12 +22,12 @@ const (
 	PGSDownloadDir     = "backend/data/pgs_files"
 
 	// Directories for population reference genomes
-	ReferenceAncestryDir = "backend/data/reference_genomes/1000G_ancestry"
-	Reference23andmeDir  = "backend/data/reference_genomes/1000G_23andme"
+	ReferenceAncestryDir = "backend/data/reference_genomes/1000G/ancestry"
+	Reference23andmeDir  = "backend/data/reference_genomes/1000G/23andme"
 
-	// Frequency files for refrence genomes
-	ReferenceFreqAncestry = "backend/data/reference_genomes/1000G_ancestry/1000G_ancestry_qc.afreq"
-	ReferenceFreq23andme  = "backend/data/reference_genomes/1000G_23andme/1000G_23andme_qc.afreq"
+	// Frequency files for reference genomes
+	ReferenceFreqAncestry = ReferenceAncestryDir + "/ancestry.afreq"
+	ReferenceFreq23andme  = Reference23andmeDir  + "/23andme.afreq"
 	ReferenceFreqFiltered = "backend/data/reference_genomes/1000G_filtered/1000G_chip_qc.afreq"
 
 	// Download dir for PGS files

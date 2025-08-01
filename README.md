@@ -46,7 +46,7 @@
    From the root directory, run:
 
    ```bash
-   go run backend/preprocessing/reference_setup.go
+   go run .\setup\
    ```
 
 5. **Start the backend server**

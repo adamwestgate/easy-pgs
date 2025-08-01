@@ -31,7 +31,7 @@ import (
 const (
 	GenomeDir   = "setup/genome"          // unfiltered .pgen/.pvar/.psam live here
 	ChipRefsDir = "setup/chip_refs"       // *.range files
-	OutRoot     = "setup/chip_panels"     // output panels
+	OutRoot     = "backend/data/reference_genomes/1000G"     // output panels
 )
 
 // ─────────────────────────────── CLI flags ───────────────────────────────────

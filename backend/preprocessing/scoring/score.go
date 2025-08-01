@@ -20,8 +20,7 @@ func refFreqFor(kitType string) string {
 	case "23andme":
 		return config.ReferenceFreq23andme
 	default:
-		// fallback to union panel
-		return config.ReferenceFreqFiltered
+		return ""
 	}
 }
 
